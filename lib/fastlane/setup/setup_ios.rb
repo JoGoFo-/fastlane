@@ -142,11 +142,13 @@ module Fastlane
       if manually
         ask_for_app_identifier
         ask_for_apple_id
-      else
-        template.gsub!('[[DEV_PORTAL_TEAM_ID]]', self.dev_portal_team)
-        itc_team = self.itc_team ? "itc_team_id \"#{self.itc_team}\" # iTunes Connect Team ID\n" : ""
-        template.gsub!('[[ITC_TEAM]]', itc_team)
       end
+
+      template.gsub!('[[DEV_PORTAL_TEAM_ID]]', self.dev_portal_team) if self.dev_portal_team
+
+      itc_team = self.itc_team ? "itc_team_id \"#{self.itc_team}\" # iTunes Connect Team ID\n" : ""
+      template.gsub!('[[ITC_TEAM]]', itc_team)
+
       template.gsub!('[[APP_IDENTIFIER]]', self.app_identifier)
       template.gsub!('[[APPLE_ID]]', self.apple_id)
 
@@ -211,7 +213,8 @@ module Fastlane
     end
 
     def generate_fastfile(manually: false)
-      scheme = self.project.schemes.first
+      scheme = self.project.schemes.first unless manually
+
       template = File.read("#{Helper.gem_path('fastlane')}/lib/assets/DefaultFastfileTemplate")
 
       scheme = ask("Optional: The scheme name of your app (If you don't need one, just hit Enter): ").to_s.strip unless scheme
